@@ -1,0 +1,66 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local notebooks
+.ipynb_checkpoints/
+
+# Datasets and local data assets
+dataset/
+data/
+*.npy
+*.npz
+*.h5
+*.hdf5
+
+# Documents and local notes
+*.doc
+*.docx
+*.pdf
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+
+# Experiment outputs and logs
+test_results/
+result/
+results/
+logs/
+log/
+runs/
+wandb/
+*.log
+events.out.tfevents.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Keep model checkpoints versionable for this repository.
+# Do not add checkpoints/ or global *.pth/*.pt ignore rules here.

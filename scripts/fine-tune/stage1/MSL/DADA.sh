@@ -1,0 +1,43 @@
+export CUDA_VISIBLE_DEVICES=0
+pretrain_datasets="AnomalyDatasets,Monash"
+
+python -u run.py --finetune stage1 --option 1 --dataset MSL --batch_size 128 --t $(seq 0.01479 0.000001 0.01481) \
+  --metric affiliation auc best_f1 r_auc vus \
+  --threshold_method spot \
+  --task_name exp_mmask \
+  --model MMask \
+  --is_pretraining 0 \
+  --is_training 1 \
+  --pretrain_des adpk3_AnomalyDatasets-Monash \
+  --des adpk3_AnomalyDatasets-Monash \
+  --win_size 100 \
+  --patch_len 5 \
+  --hidden_dim 64 \
+  --repr_dim 256 \
+  --depth 10 \
+  --mask_mode symmetry \
+  --copies 10 \
+  --backbone dilated_conv \
+  --pretrain_datasets "$pretrain_datasets" \
+  --pretrain_batch_size 2048 \
+  --pretrain_epochs 5 \
+  --train_epochs 100 \
+  --patience 20 \
+  --learning_rate 1e-3 \
+  --grl \
+  --adp_bottleneck \
+  --bn_dims 16 32 64 128 192 256 \
+  --k 3 \
+  --score_lambda 0.05 \
+  --metrics affiliation auc_roc f1 best_f1 vus_roc \
+  --multi_scale multi \
+  --scale_win_size 2500 \
+  --scale_step 2500 \
+  --prototype TC_res \
+  --n_channel 1 \
+  --n_cluster 50 \
+  --alpha 0.5 \
+  --beta 0.001 \
+  --epsilon 0.05 \
+  --temp_bern 0.07 \
+  --star

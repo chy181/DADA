@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
+pretrain_datasets="AnomalyDatasets,Monash"
+
+python -u run.py --finetune stage2 --option 1 --dataset PSM --batch_size 32 --t $(seq 0.04 0.0001 0.05) \
+  --metric best_f1 auc r_auc vus \
+  --metrics best_f1 \
+  --threshold_method spot \
+  --task_name exp_mmask \
+  --model MMask \
+  --is_pretraining 0 \
+  --is_training 1 \
+  --pretrain_des adpk3_AnomalyDatasets-Monash \
+  --des adpk3_AnomalyDatasets-Monash \
+  --win_size 100 \
+  --patch_len 5 \
+  --hidden_dim 64 \
+  --repr_dim 256 \
+  --depth 10 \
+  --mask_mode symmetry \
+  --copies 10 \
+  --backbone dilated_conv \
+  --pretrain_datasets "$pretrain_datasets" \
+  --pretrain_batch_size 2048 \
+  --pretrain_epochs 5 \
+  --train_epochs 100 \
+  --patience 3 \
+  --learning_rate 1e-3 \
+  --grl \
+  --adp_bottleneck \
+  --bn_dims 16 32 64 128 192 256 \
+  --k 3 \
+  --score_lambda 0.3 \
+  --wgad \
+  --wgad_horizon 20 \
+  --wgad_wave_scales 8 \
+  --wgad_gcn_layers 1 \
+  --wgad_dropout 0.0 \
+  --wgad_head_dropout 0.0 \
+  --wgad_score_lambda 0.1 \
+  --wgad_lambda_cl 1.0 \
+  --wgad_lambda_wavelet 0.01 \
+  --wgad_loss_weight 1.0 \
+  --wgad_alpha 0.1 \
+  --wgad_score_mode product \
+  --self_imp \
+  --self_imp_alpha 0.0001 \
+  --self_imp_steps 1 \
+  --self_imp_lr 2e-05 \
+  --self_imp_l1 0.0 \
+  --self_imp_tv 0.0 \
+  --self_imp_huber_delta 0.5 \
+  --self_imp_hidden_dim 16 \
+  --self_imp_raw_hidden_dim 16 \
+  --self_imp_raw_weight 0.0 \
+  --self_imp_seed 7 \
+  --multi_scale multi \
+  --scale_win_size 2500 \
+  --scale_step 2500 \
+  --prototype TC_res \
+  --n_channel 25 \
+  --n_cluster 10 \
+  --alpha1 0.001 \
+  --beta1 0.001 \
+  --alpha2 0.5 \
+  --beta2 1.0 \
+  --epsilon 0.05 \
+  --temp_bern 0.07 \
+  --star \
+  --classification \
+  --use_vae \
+  --use_diffusion \
+  --weight_strategy softmax

@@ -107,10 +107,46 @@ parser.add_argument('--diffusion_guidance_scale', type=float, default=0.5)
 
 ### 双域时空关联功能参数：
 
+```shell
+parser.add_argument('--wgad', action='store_true', help='enable WGAD plugin')
+parser.add_argument('--wgad_horizon', type=int, default=20, help='future length used inside WGAD plugin')
+parser.add_argument('--wgad_wave_scales', type=int, default=16)
+parser.add_argument('--wgad_gcn_layers', type=int, default=1)
+parser.add_argument('--wgad_dropout', type=float, default=0.0)
+parser.add_argument('--wgad_head_dropout', type=float, default=0.0)
+parser.add_argument('--wgad_score_lambda', type=float, default=0.1)
+parser.add_argument('--wgad_lambda_cl', type=float, default=1.0)
+parser.add_argument('--wgad_lambda_wavelet', type=float, default=0.01)
+parser.add_argument('--wgad_loss_weight', type=float, default=1.0)
+parser.add_argument('--wgad_alpha', type=float, default=0.5, help='fusion weight of WGAD score against DADA reconstruction score')
+parser.add_argument('--weight_strategy_blend', type=str, default='fixed', choices=['fixed', 'softmax'], help='score weight strategy')
+parser.add_argument('--wgad_score_mode', type=str, default='product', choices=['product', 'rec', 'pre', 'one_minus_cl', 'time_rec', 'rec_times_cl', 'rec_over_pre'])
+parser.add_argument('--wgad_window_size', type=int, default=1, help='patch-level window size for WGAD spatio-temporal graph; 1 keeps channel-only graph')
+parser.add_argument('--wgad_window_stride', type=int, default=1, help='patch-level stride for WGAD spatio-temporal graph')
+parser.add_argument('--wgad_affine', action='store_true')
+parser.add_argument('--wgad_subtract_last', action='store_true')
+```
+
+其中，'--wgad'控制是否启用双域时空关联一致性检测。'--wgad_horizon'是未来预测分支长度，需小于'--win_size'，且'--win_size - --wgad_horizon'需能被'--patch_len'整除。'--wgad_window_size'是时空图的二级窗口跨度，设为1时退化为当前patch内通道图，设为大于1时在相邻patch和通道上构建局部时空图；当前'--wgad_window_stride'固定建议为1。'--wgad_wave_scales'控制小波域尺度，'--wgad_gcn_layers'控制图卷积层数，'--wgad_dropout'和'--wgad_head_dropout'控制正则化。'--wgad_lambda_cl'、'--wgad_lambda_wavelet'和'--wgad_loss_weight'分别控制一致性分类、小波域重构和WGAD总loss权重。'--wgad_score_lambda'控制时域分数与小波域分数的融合比例。'--wgad_score_mode'选择WGAD内部异常分数组合方式。'--wgad_alpha'和'--weight_strategy_blend'控制WGAD分数与DADA主重构分数的融合，'fixed'为固定加权，'softmax'为动态加权。'--wgad_affine'和'--wgad_subtract_last'用于WGAD内部归一化增强。
 
 
 ### 多评分聚合功能参数：
 
+```shell
+parser.add_argument('--self_imp', action='store_true', help='enable pointwise self-interpretation plugin')
+parser.add_argument('--self_imp_alpha', type=float, default=0.5, help='fusion weight of self-imp score against DADA base score')
+parser.add_argument('--self_imp_steps', type=int, default=20, help='optimization steps used inside self-imp inference')
+parser.add_argument('--self_imp_lr', type=float, default=1e-2, help='optimizer lr used inside self-imp inference')
+parser.add_argument('--self_imp_l1', type=float, default=1e-2, help='sparsity weight used inside self-imp inference')
+parser.add_argument('--self_imp_tv', type=float, default=1e-2, help='total variation weight used inside self-imp inference')
+parser.add_argument('--self_imp_huber_delta', type=float, default=1.0, help='Huber delta for self-imp score reconstruction')
+parser.add_argument('--self_imp_hidden_dim', type=int, default=16, help='hidden dim of the monotonic calibrator in self-imp')
+parser.add_argument('--self_imp_raw_hidden_dim', type=int, default=16, help='hidden dim of the raw-data encoder in self-imp')
+parser.add_argument('--self_imp_raw_weight', type=float, default=0.1, help='raw-data prior weight used inside self-imp inference')
+parser.add_argument('--self_imp_seed', type=int, default=2024, help='random seed used inside self-imp inference')
+```
+
+其中，'--self_imp'控制是否启用基于测试时训练的自解释多评分聚合。该模块在推理阶段接收重构分数、频域分数以及可选WGAD分数等多路'score_channels'，通过单调校准器和原始序列先验得到点级聚合分数。'--self_imp_steps'和'--self_imp_lr'控制每个测试窗口内的自适应优化步数和学习率。'--self_imp_l1'约束通道权重稀疏性，便于突出主要评分来源；'--self_imp_tv'约束时间连续性，降低点级分数抖动；'--self_imp_huber_delta'控制Huber重构项的鲁棒性。'--self_imp_hidden_dim'和'--self_imp_raw_hidden_dim'分别设置评分校准器和原始数据编码器隐层维度。'--self_imp_raw_weight'控制原始序列先验对聚合分数的影响。'--self_imp_alpha'控制self-imp聚合分数与DADA当前主分数的融合比例，融合策略沿用'--weight_strategy_blend'。'--self_imp_seed'用于固定测试时优化初始化，便于复现实验。
 
 
 测试结果保存在'./test_results/'下。

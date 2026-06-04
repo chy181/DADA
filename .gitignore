@@ -37,6 +37,7 @@ data/
 *.hdf5
 
 # Documents and local notes
+AGENTS.md
 *.doc
 *.docx
 *.pdf
